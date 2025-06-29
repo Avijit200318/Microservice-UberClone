@@ -1,8 +1,20 @@
 import express from "express";
+import morgan from "morgan";
 
 const app = express();
+app.use(morgan('dev'));
 
 app.get("/", (req, res) => {
+    for(let i = 0; i < 1000000; i++){
+        
+    }
+    res.send("Hello World");
+})
+
+app.get("/stressTest", (req, res) => {
+    for(let i = 0; i < 1000000; i++){
+
+    }
     res.send("Hello World");
 })
 
