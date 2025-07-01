@@ -1,13 +1,14 @@
 import userModel from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
+import blacklisttoken from "../models/blacklisttoken.model.js";
 
 export const userRegister = async (req, res, next) => {
     try{
-        const {name, email, password} = req.body();
+        const {name, email, password} = req.body;
         const user = await userModel.findOne({email});
 
-        if(!user){
+        if(user){
             return res.status(400).json({message: "User is already exist"});
         }
 
@@ -37,14 +38,14 @@ export const login = async (req, res, next) => {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcryptjs.compare(password, user.password);
 
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid email or password' });
         }
 
 
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRECT, { expiresIn: '1h' });
 
         delete user._doc.password;
 
@@ -61,7 +62,7 @@ export const login = async (req, res, next) => {
 export const logout = async (req, res, next) => {
     try {
         const token = req.cookies.token;
-        await blacklisttokenModel.create({ token });
+        await blacklisttoken.create({ token });
         res.clearCookie('token');
         res.send({ message: 'User logged out successfully' });
     } catch (error) {
